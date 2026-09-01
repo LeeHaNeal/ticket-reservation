@@ -31,17 +31,26 @@ const STATUS_LABEL: Record<EventStatus, string> = {
   closed: '예매 마감',
 };
 
+const SORT_OPTIONS = [
+  { value: '', label: '등록순' },
+  { value: 'reservationStartAt,asc', label: '예매 시작일순' },
+  { value: 'reservationEndAt,asc', label: '마감임박순' },
+  { value: 'remainingStock,desc', label: '잔여 많은순' },
+  { value: 'remainingStock,asc', label: '잔여 적은순' },
+] as const;
+
 export function EventListPage() {
   const [events, setEvents] = useState<EventResponse[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [sort, setSort] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listEvents(page)
+    listEvents(page, 12, sort || undefined)
       .then((data) => {
         if (cancelled) return;
         setEvents(data.content);
@@ -57,11 +66,30 @@ export function EventListPage() {
     return () => {
       cancelled = true;
     };
-  }, [page]);
+  }, [page, sort]);
 
   return (
     <div className="page">
-      <h1>이벤트 목록</h1>
+      <div className="page-header-row">
+        <h1>이벤트 목록</h1>
+        <label className="sort-select-label">
+          정렬
+          <select
+            className="sort-select"
+            value={sort}
+            onChange={(e) => {
+              setSort(e.target.value);
+              setPage(0);
+            }}
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
       {error && <p className="form-error">{error}</p>}
       {loading ? (
         <p>불러오는 중...</p>
