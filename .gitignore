@@ -12,3 +12,6 @@ Thumbs.db
 
 # 배포용 실제 시크릿 (템플릿인 .env.prod.example만 커밋)
 .env.prod
+
+# SSH 프라이빗 키 (실수로 커밋되면 절대 안 됨)
+*.pem
