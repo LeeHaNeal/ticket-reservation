@@ -1,0 +1,11 @@
+# 루트 레벨 IDE/스크래치 파일 (backend, frontend는 각자 자체 .gitignore가 있음)
+.vscode/
+*.session.sql
+_to_delete/
+
+# 디버깅 중 생성된 대용량 로그 (실수로 커밋되면 안 됨)
+backend/test-output.log
+
+# OS
+.DS_Store
+Thumbs.db
