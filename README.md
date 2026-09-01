@@ -2,7 +2,12 @@
 
 **"동시 요청 1,000건이 몰려도, 재고 100개는 정확히 100개만 팔린다"**
 
-`Backend` `Frontend` `Database` `Concurrency`
+`Backend` `Frontend` `Database` `Concurrency` `AWS`
+
+### 🚀 [라이브 데모 바로가기](http://3.34.11.38)
+
+AWS EC2에 Docker Compose로 배포되어 실제로 접속해 회원가입/로그인/예매까지 체험할 수 있습니다.
+> 관리자 데모 계정: `admin@ticket.com` / `admin1234!`
 
 ## ✨ 프로젝트 소개
 
@@ -18,7 +23,7 @@ Redis 원자적 연산으로 해결한 선착순 티켓 예매 서비스입니�
 | Backend | Spring Boot 4.1, Java 17, Spring Security, JWT, JPA |
 | Frontend | React 18, TypeScript, Vite, Axios, React Router |
 | Database | MySQL 8, Redis 7 |
-| Infra | Docker Compose (MySQL/Redis 로컬 구동) |
+| Infra | Docker Compose, Nginx, AWS EC2 (배포), Docker Compose (MySQL/Redis 로컬 개발) |
 | Version Control | Git, GitHub |
 
 ## 👥 팀원 및 역할
@@ -73,7 +78,14 @@ ticket-reservation/
 └─ docker-compose.yml     # MySQL 8 + Redis 7
 ```
 
-## 🚀 빠른 실행
+## 🌐 배포 (AWS)
+
+EC2 단일 인스턴스에 `docker-compose.prod.yml`로 MySQL + Redis + Backend + Nginx(Frontend)
+4개 컨테이너를 함께 배포했습니다. Nginx가 정적 프론트를 서빙하면서 `/api/`를 백엔드로
+리버스 프록시해, 배포 환경에서는 프론트/백엔드가 같은 origin이라 별도 CORS 설정이
+필요 없습니다. 배포 과정과 트러블슈팅은 [`DEPLOY.md`](./DEPLOY.md)에 정리했습니다.
+
+## 🚀 빠른 실행 (로컬)
 
 ```bash
 # 1. MySQL / Redis 기동
