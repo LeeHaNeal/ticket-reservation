@@ -14,6 +14,23 @@ function formatDateTime(iso: string) {
   });
 }
 
+type EventStatus = 'not-open' | 'available' | 'sold-out' | 'closed';
+
+function getEventStatus(event: EventResponse): EventStatus {
+  const now = new Date();
+  if (now > new Date(event.reservationEndAt)) return 'closed';
+  if (event.remainingStock <= 0) return 'sold-out';
+  if (now < new Date(event.reservationStartAt)) return 'not-open';
+  return 'available';
+}
+
+const STATUS_LABEL: Record<EventStatus, string> = {
+  'not-open': '예매 오픈 전',
+  available: '',
+  'sold-out': '매진',
+  closed: '예매 마감',
+};
+
 export function EventListPage() {
   const [events, setEvents] = useState<EventResponse[]>([]);
   const [page, setPage] = useState(0);
@@ -53,17 +70,40 @@ export function EventListPage() {
       ) : (
         <div className="event-grid">
           {events.map((event) => {
-            const soldOut = event.remainingStock <= 0;
-            return (
-              <Link to={`/events/${event.id}`} key={event.id} className="card event-card">
+            const status = getEventStatus(event);
+            const closed = status === 'closed';
+
+            const cardBody = (
+              <>
                 <h2>{event.name}</h2>
                 {event.venue && <p className="event-venue">📍 {event.venue}</p>}
                 <p className="event-period">
                   {formatDateTime(event.reservationStartAt)} ~ {formatDateTime(event.reservationEndAt)}
                 </p>
-                <p className={`event-stock ${soldOut ? 'sold-out' : ''}`}>
-                  {soldOut ? '매진' : `잔여 ${event.remainingStock} / ${event.totalStock}`}
+                <p className={`event-stock ${status !== 'available' ? status : ''}`}>
+                  {status === 'available'
+                    ? `잔여 ${event.remainingStock} / ${event.totalStock}`
+                    : STATUS_LABEL[status]}
                 </p>
+              </>
+            );
+
+            if (closed) {
+              return (
+                <div
+                  key={event.id}
+                  className="card event-card event-card-disabled"
+                  aria-disabled="true"
+                  title="예매가 마감된 이벤트입니다"
+                >
+                  {cardBody}
+                </div>
+              );
+            }
+
+            return (
+              <Link to={`/events/${event.id}`} key={event.id} className="card event-card">
+                {cardBody}
               </Link>
             );
           })}

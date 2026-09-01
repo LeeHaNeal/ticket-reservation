@@ -253,6 +253,22 @@ a {
   opacity: 1;
 }
 
+.event-card-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  filter: grayscale(0.3);
+}
+
+.event-card-disabled:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-border);
+}
+
+.event-card-disabled:hover::before {
+  opacity: 0;
+}
+
 .event-card h2 {
   font-size: 1.06rem;
   font-weight: 700;
@@ -282,6 +298,16 @@ a {
 .event-stock.sold-out {
   color: var(--color-danger);
   background: var(--color-danger-soft);
+}
+
+.event-stock.not-open {
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+}
+
+.event-stock.closed {
+  color: var(--color-text-faint);
+  background: var(--color-surface-alt);
 }
 
 .pagination {

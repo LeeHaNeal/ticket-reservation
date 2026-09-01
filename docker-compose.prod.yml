@@ -1,0 +1,63 @@
+# 배포용(EC2) compose 파일. 로컬 개발용 docker-compose.yml(MySQL/Redis만 호스트에 노출)과는
+# 별개로, 이 파일은 mysql/redis/backend/frontend를 전부 컨테이너로 묶어서 EC2 한 대에 띄운다.
+#
+# 사용법 (EC2에서):
+#   cp .env.prod.example .env.prod   # 최초 1회, 값 채워넣기
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ticket-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ticketdb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - internal
+
+  redis:
+    image: redis:7
+    container_name: ticket-redis
+    restart: always
+    networks:
+      - internal
+
+  backend:
+    build: ./backend
+    container_name: ticket-backend
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ticketdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ""
+    container_name: ticket-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  mysql-data:

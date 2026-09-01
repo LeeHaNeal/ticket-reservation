@@ -9,3 +9,6 @@ backend/test-output.log
 # OS
 .DS_Store
 Thumbs.db
+
+# 배포용 실제 시크릿 (템플릿인 .env.prod.example만 커밋)
+.env.prod
